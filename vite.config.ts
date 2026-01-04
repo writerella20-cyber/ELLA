@@ -5,16 +5,22 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  // We use process.cwd() directly.
-  const env = loadEnv(mode, (process as any).cwd(), '');
+  // @ts-ignore process is defined in node
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiKey = env.API_KEY || process.env.API_KEY || '';
 
   return {
     plugins: [react()],
     define: {
-      // Safely expose the API_KEY. We use a fallback to empty string to prevent undefined errors.
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || ''),
-      // Polyfill process for libraries that might expect it
-      'process.env': {}
+      // Define specific key first to ensure replacement
+      'process.env.API_KEY': JSON.stringify(apiKey),
+      // Define global process object to prevent "process is not defined" crashes
+      'process': {
+        env: {
+          API_KEY: apiKey,
+          NODE_ENV: mode
+        }
+      }
     },
     build: {
       outDir: 'dist',
