@@ -227,17 +227,16 @@ export const RevisionDashboard: React.FC<RevisionDashboardProps> = ({
                             </div>
                             
                             <div className="mb-3 space-y-2">
-                                {/* Use dangerouslySetInnerHTML to render formatting tags returned by AI */}
                                 <div 
                                     className="bg-red-50 p-2.5 rounded-lg text-sm text-red-800 line-through decoration-red-300 decoration-2 decoration-wavy opacity-80 border border-red-100 font-serif"
-                                    dangerouslySetInnerHTML={{ __html: String(suggestion.original) }}
+                                    dangerouslySetInnerHTML={{ __html: `${suggestion.original || ''}` }}
                                 />
                                 <div className="flex justify-center text-gray-300 -my-1">
                                     <ArrowRight size={14} className="rotate-90" />
                                 </div>
                                 <div 
                                     className="bg-green-50 p-2.5 rounded-lg text-sm text-green-800 font-bold border border-green-100 font-serif"
-                                    dangerouslySetInnerHTML={{ __html: String(suggestion.replacement) }}
+                                    dangerouslySetInnerHTML={{ __html: `${suggestion.replacement || ''}` }}
                                 />
                             </div>
 
