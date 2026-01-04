@@ -126,4 +126,12 @@ export const BookDesignerModal: React.FC<BookDesignerModalProps> = ({ isOpen, on
                                      fontWeight: 'bold'
                                  }}>I</span>
                              )}
-                             t was a bright, cold day in April, and the clocks were striking thirteen. Winston Smith, his chin
+                             t was a bright, cold day in April, and the clocks were striking thirteen. Winston Smith, his chin nuzzled into his breast in an effort to escape the vile wind, slipped quickly through the glass doors of Victory Mansions, though not quickly enough to prevent a swirl of gritty dust from entering along with him.
+                         </p>
+
+                         {/* Paragraph 2 */}
+                         <p style={{
+                             marginBottom: selectedDesign.styles.paragraphSpacing ? '1em' : '0',
+                             textIndent: selectedDesign.styles.paragraphSpacing ? '0' : (selectedDesign.styles.paragraphIndent ? '2em' : '0')
+                         }}>
+                             The hallway smelt of boiled cabbage and old rag mats. At one end of it a coloured poster, too large for indoor display, had been tacked to the wall. It depicted simply an enormous face, more than a metre wide: the face of a man of about forty-five, with a heavy black moustache and ruggedly handsome features. Winston made for the stairs. It was no use trying the
