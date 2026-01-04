@@ -134,4 +134,40 @@ export const BookDesignerModal: React.FC<BookDesignerModalProps> = ({ isOpen, on
                              marginBottom: selectedDesign.styles.paragraphSpacing ? '1em' : '0',
                              textIndent: selectedDesign.styles.paragraphSpacing ? '0' : (selectedDesign.styles.paragraphIndent ? '2em' : '0')
                          }}>
-                             The hallway smelt of boiled cabbage and old rag mats. At one end of it a coloured poster, too large for indoor display, had been tacked to the wall. It depicted simply an enormous face, more than a metre wide: the face of a man of about forty-five, with a heavy black moustache and ruggedly handsome features. Winston made for the stairs. It was no use trying the
+                             The hallway smelt of boiled cabbage and old rag mats. At one end of it a coloured poster, too large for indoor display, had been tacked to the wall. It depicted simply an enormous face, more than a metre wide: the face of a man of about forty-five, with a heavy black moustache and ruggedly handsome features. Winston made for the stairs. It was no use trying the lift.
+                         </p>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100 bg-white flex justify-end gap-3">
+            <button 
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+                Cancel
+            </button>
+            <div className="flex gap-2">
+                <button 
+                    onClick={() => handleApply('active')}
+                    disabled={isApplying}
+                    className="px-4 py-2 text-sm font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-200"
+                >
+                    Apply to Current Chapter
+                </button>
+                <button 
+                    onClick={() => handleApply('all')}
+                    disabled={isApplying}
+                    className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center gap-2"
+                >
+                    {isApplying ? <Wand2 className="animate-spin" size={16} /> : <Wand2 size={16} />}
+                    Apply to Entire Book
+                </button>
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
