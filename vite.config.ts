@@ -14,13 +14,6 @@ export default defineConfig(({ mode }) => {
     define: {
       // Define specific key first to ensure replacement
       'process.env.API_KEY': JSON.stringify(apiKey),
-      // Define global process object to prevent "process is not defined" crashes
-      'process': {
-        env: {
-          API_KEY: apiKey,
-          NODE_ENV: mode
-        }
-      }
     },
     build: {
       outDir: 'dist',
