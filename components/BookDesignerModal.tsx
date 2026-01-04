@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, BookOpen, Wand2, Check } from 'lucide-react';
+import { X, Wand2, Check } from 'lucide-react';
 import { BOOK_DESIGNS } from '../data/bookDesigns';
 import { BookDesign } from '../types';
 
@@ -126,4 +126,4 @@ export const BookDesignerModal: React.FC<BookDesignerModalProps> = ({ isOpen, on
                                      fontWeight: 'bold'
                                  }}>I</span>
                              )}
-                             t was a bright
+                             t was a bright, cold day in April, and the clocks were striking thirteen. Winston Smith, his chin
