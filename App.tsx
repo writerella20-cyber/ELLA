@@ -823,7 +823,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen w-full bg-[#F0F2F5]">
-      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => {
+      {/* Fallback inline style for hiding file input if Tailwind class is missing */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        style={{ display: 'none' }}
+        accept="image/*" 
+        onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) {
               const reader = new FileReader();

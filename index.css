@@ -1,0 +1,88 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar for a cleaner look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Editor specific styles */
+.editor-content:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+.editor-content:focus {
+  outline: none;
+}
+
+/* Scriptwriting Styles - Industry Standard Formatting */
+.script-scene {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-top: 32px;
+  margin-bottom: 12px;
+  color: #000;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.script-action {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  margin-bottom: 16px;
+  color: #000;
+  line-height: 1.1;
+}
+.script-character {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  text-transform: uppercase;
+  margin-left: 42%;
+  margin-right: 15%;
+  margin-top: 24px;
+  margin-bottom: 0px;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+.script-parenthetical {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  margin-left: 35%;
+  margin-right: 30%;
+  margin-bottom: 0px;
+  color: #000;
+  line-height: 1.1;
+}
+.script-dialogue {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  margin-left: 25%;
+  margin-right: 25%;
+  margin-bottom: 16px;
+  color: #000;
+  line-height: 1.1;
+}
+.script-transition {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  text-transform: uppercase;
+  text-align: right;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  margin-right: 5%;
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}

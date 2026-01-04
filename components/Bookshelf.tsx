@@ -222,7 +222,14 @@ export const Bookshelf: React.FC<BookshelfProps> = ({
 
   return (
     <div className="h-screen overflow-hidden bg-[#f3f4f6] flex flex-col font-sans">
-      <input type="file" ref={fileInputRef} className="hidden" accept=".json" onChange={handleFileChange} />
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        style={{ display: 'none' }}
+        accept=".json" 
+        onChange={handleFileChange} 
+      />
       
       {/* Edit Modal */}
       {editingProject && (
