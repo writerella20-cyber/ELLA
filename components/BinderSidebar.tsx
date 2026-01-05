@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { 
   Folder, FileText, ChevronRight, ChevronDown, Trash2, 
   Book, FilePlus, FolderPlus, X, Bookmark
 } from 'lucide-react';
 import { BinderItem } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BinderSidebarProps {
   isOpen: boolean;
@@ -173,7 +174,9 @@ const BinderNode: React.FC<{
   );
 };
 
-export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
+// Optimization: Memoize the Sidebar to prevent re-renders when Editor content changes deeply
+export const BinderSidebar = memo((props: BinderSidebarProps) => {
+  const { t } = useLanguage();
   const [filterMode, setFilterMode] = useState<'all' | 'bookmarks'>('all');
 
   if (!props.isOpen) return null;
@@ -202,7 +205,7 @@ export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 font-serif text-gray-800 font-semibold">
                     <Book size={18} className="text-gray-500"/>
-                    <span>Binder</span>
+                    <span>{t('binder')}</span>
                 </div>
                 <button onClick={props.onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-200">
                     <X size={16} />
@@ -215,13 +218,13 @@ export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
                     onClick={() => setFilterMode('all')}
                     className={`flex-1 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${filterMode === 'all' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                    All
+                    {t('all')}
                 </button>
                 <button 
                     onClick={() => setFilterMode('bookmarks')}
                     className={`flex-1 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1 ${filterMode === 'bookmarks' ? 'bg-white shadow text-red-600' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                    <Bookmark size={10} className={filterMode === 'bookmarks' ? 'fill-red-600' : ''} /> Bookmarks
+                    <Bookmark size={10} className={filterMode === 'bookmarks' ? 'fill-red-600' : ''} /> {t('bookmarks')}
                 </button>
             </div>
         </div>
@@ -233,13 +236,13 @@ export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
                     onClick={() => props.onAddItem('document')}
                     className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs font-medium text-gray-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-sm"
                 >
-                    <FilePlus size={14} /> New Doc
+                    <FilePlus size={14} /> {t('newDoc')}
                 </button>
                 <button 
                     onClick={() => props.onAddItem('folder')}
                     className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs font-medium text-gray-700 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-sm"
                 >
-                    <FolderPlus size={14} /> Group
+                    <FolderPlus size={14} /> {t('group')}
                 </button>
             </div>
         )}
@@ -248,7 +251,7 @@ export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
         <div className="flex-1 overflow-y-auto py-2">
             {props.items.length === 0 && (
                 <div className="text-center p-8 text-sm text-gray-400">
-                    Your binder is empty. Create a document to start writing.
+                    {t('emptyBinder')}
                 </div>
             )}
             {props.items.map(item => (
@@ -276,4 +279,4 @@ export const BinderSidebar: React.FC<BinderSidebarProps> = (props) => {
         </div>
     </>
   );
-};
+});

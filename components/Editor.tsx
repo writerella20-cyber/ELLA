@@ -3,6 +3,7 @@ import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } f
 import { SlashMenu } from './SlashMenu';
 import { BubbleMenu } from './BubbleMenu';
 import { X, Search, ArrowDown, ArrowUp } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface EditorProps {
   content: string;
@@ -28,9 +29,10 @@ export const Editor = forwardRef<EditorRef, EditorProps>(({
     scale = 1, 
     variant = 'default',
     onFocus,
-    placeholder = "Type '/' for commands...",
+    placeholder,
     showInlineNotes = true
 }, ref) => {
+  const { t } = useLanguage();
   const editorRef = useRef<HTMLDivElement>(null);
   const isUpdatingRef = useRef(false);
   const [slashMenuPos, setSlashMenuPos] = useState<{ x: number, y: number } | null>(null);
@@ -38,6 +40,9 @@ export const Editor = forwardRef<EditorRef, EditorProps>(({
   const [showFindReplace, setShowFindReplace] = useState(false);
   const [findTerm, setFindTerm] = useState('');
   const [replaceTerm, setReplaceTerm] = useState('');
+
+  // Default placeholder from props or translation
+  const effectivePlaceholder = placeholder || t('editorPlaceholder');
 
   // Sync content prop to innerHTML
   useEffect(() => {
@@ -282,7 +287,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(({
         onMouseUp={handleMouseUp}
         onFocus={onFocus}
         spellCheck={true}
-        data-placeholder={placeholder}
+        data-placeholder={effectivePlaceholder}
       />
       
       <SlashMenu position={slashMenuPos} onClose={() => setSlashMenuPos(null)} onSelect={handleSlashAction} />

@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Heading1, Heading2, Image, Sparkles, List, ListOrdered, Type, Quote, Clapperboard, User, MessageCircle, ArrowRight, Parentheses } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SlashMenuProps {
     position: { x: number, y: number } | null;
@@ -9,27 +10,29 @@ interface SlashMenuProps {
 }
 
 export const SlashMenu: React.FC<SlashMenuProps> = ({ position, onClose, onSelect }) => {
+    const { t } = useLanguage();
     const [selectedIndex, setSelectedIndex] = useState(0);
+    
     const items = [
         // Basic
-        { id: 'text', label: 'Text', icon: Type, category: 'Basic' },
-        { id: 'h1', label: 'Heading 1', icon: Heading1, category: 'Basic' },
-        { id: 'h2', label: 'Heading 2', icon: Heading2, category: 'Basic' },
-        { id: 'ul', label: 'Bullet List', icon: List, category: 'Basic' },
-        { id: 'ol', label: 'Numbered List', icon: ListOrdered, category: 'Basic' },
-        { id: 'quote', label: 'Quote', icon: Quote, category: 'Basic' },
+        { id: 'text', label: t('slash_text'), icon: Type, category: 'Basic' },
+        { id: 'h1', label: t('slash_h1'), icon: Heading1, category: 'Basic' },
+        { id: 'h2', label: t('slash_h2'), icon: Heading2, category: 'Basic' },
+        { id: 'ul', label: t('slash_bullet'), icon: List, category: 'Basic' },
+        { id: 'ol', label: t('slash_number'), icon: ListOrdered, category: 'Basic' },
+        { id: 'quote', label: t('slash_quote'), icon: Quote, category: 'Basic' },
         
         // Scriptwriting
-        { id: 'script-scene', label: 'Scene Heading', icon: Clapperboard, category: 'Script' },
-        { id: 'script-action', label: 'Action', icon: Type, category: 'Script' },
-        { id: 'script-character', label: 'Character', icon: User, category: 'Script' },
-        { id: 'script-dialogue', label: 'Dialogue', icon: MessageCircle, category: 'Script' },
-        { id: 'script-parenthetical', label: 'Parenthetical', icon: Parentheses, category: 'Script' },
-        { id: 'script-transition', label: 'Transition', icon: ArrowRight, category: 'Script' },
+        { id: 'script-scene', label: t('slash_scene'), icon: Clapperboard, category: 'Script' },
+        { id: 'script-action', label: t('slash_action'), icon: Type, category: 'Script' },
+        { id: 'script-character', label: t('slash_char'), icon: User, category: 'Script' },
+        { id: 'script-dialogue', label: t('slash_dialogue'), icon: MessageCircle, category: 'Script' },
+        { id: 'script-parenthetical', label: t('slash_parenthetical'), icon: Parentheses, category: 'Script' },
+        { id: 'script-transition', label: t('slash_transition'), icon: ArrowRight, category: 'Script' },
 
         // AI
-        { id: 'image', label: 'Generate Image', icon: Image, category: 'AI' },
-        { id: 'magic', label: 'Magic Write', icon: Sparkles, category: 'AI' },
+        { id: 'image', label: t('slash_image'), icon: Image, category: 'AI' },
+        { id: 'magic', label: t('slash_magic'), icon: Sparkles, category: 'AI' },
     ];
 
     useEffect(() => {

@@ -15,6 +15,7 @@ import {
   Sparkles, LayoutTemplate, Eye, EyeOff, Hash, Calendar, Eraser, SpellCheck, Book, MessageSquarePlus, RefreshCw, Layout
 } from 'lucide-react';
 import { FormatType } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ToolbarProps {
   onFormat: (command: FormatType | string, value?: string) => void;
@@ -86,6 +87,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     onFormat, onInsertImage, onMagicWrite, isMagicOpen, onExport, onOpenTemplates,
     showInlineNotes, onToggleNotes, onOpenRevision, onOpenBookDesigner, onSmartSync, isSyncing, onOpenThemes
 }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ToolbarTab>('Home');
 
   const handleLink = () => {
@@ -103,23 +105,25 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       document.execCommand('copy');
   };
 
+  const tabs: ToolbarTab[] = ['File', 'Home', 'Insert', 'Layout', 'Review', 'View'];
+
   return (
     <div className="sticky top-0 z-40 bg-white border-b border-gray-300 shadow-sm flex flex-col select-none">
       
       {/* 1. Top Ribbon Tabs (Office Style) */}
       <div className="flex items-center px-1 bg-[#f3f4f6] border-b border-gray-200">
           <div className="flex">
-            {['File', 'Home', 'Insert', 'Layout', 'Review', 'View'].map((tab) => (
+            {tabs.map((tab) => (
                 <button
                     key={tab}
-                    onClick={() => setActiveTab(tab as ToolbarTab)}
+                    onClick={() => setActiveTab(tab)}
                     className={`px-4 py-1.5 text-xs font-medium transition-colors rounded-t-md mt-1
                         ${activeTab === tab 
                             ? 'bg-white text-indigo-700 border-t-2 border-indigo-600 shadow-sm relative z-10' 
                             : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'}
                     `}
                 >
-                    {tab}
+                    {t(tab.toLowerCase() as any)}
                 </button>
             ))}
           </div>
@@ -135,11 +139,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                     title="Auto-fill Characters, Settings, and Timeline from text"
                  >
                     {isSyncing ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                    {isSyncing ? 'Syncing...' : 'Smart Sync'}
+                    {isSyncing ? t('saving') : t('smartSync')}
                  </button>
              )}
              <button onClick={onMagicWrite} className={`flex items-center gap-1 px-2 py-1 text-xs font-bold rounded shadow-sm border ${isMagicOpen ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50'}`}>
-                <Sparkles size={12} /> AI Magic
+                <Sparkles size={12} /> {t('aiMagic')}
              </button>
           </div>
       </div>
@@ -336,15 +340,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {/* --- FILE TAB --- */}
         {activeTab === 'File' && (
             <div className="flex items-start gap-2 overflow-x-auto no-scrollbar py-1">
-                <ToolbarButton icon={Download} label="Export" onClick={onExport} showLabel />
-                <ToolbarButton icon={Printer} label="Print" onClick={() => window.print()} showLabel />
+                <ToolbarButton icon={Download} label={t('export')} onClick={onExport} showLabel />
+                <ToolbarButton icon={Printer} label={t('print')} onClick={() => window.print()} showLabel />
             </div>
         )}
 
         {/* --- LAYOUT TAB --- */}
         {activeTab === 'Layout' && (
             <div className="flex items-start gap-2 overflow-x-auto no-scrollbar py-1">
-                <ToolbarButton icon={Book} label="Book Design" onClick={onOpenBookDesigner} showLabel />
+                <ToolbarButton icon={Book} label={t('bookDesigner')} onClick={onOpenBookDesigner} showLabel />
                 <div className="px-3 py-2 text-sm text-gray-500 italic">
                     Margins, Orientation, and Size coming soon.
                 </div>

@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { BinderItem, WorkspaceTheme } from '../types';
 import { Calendar, Clock, GripVertical, AlertCircle, ArrowDown, Layers, MapPin } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TimelineViewProps {
   items: BinderItem[];
@@ -13,6 +14,7 @@ interface TimelineViewProps {
 type SortMode = 'narrative' | 'chronological';
 
 export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem, onSelect, theme }) => {
+  const { t } = useLanguage();
   const [draggedItem, setDraggedItem] = useState<BinderItem | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>('chronological');
 
@@ -110,7 +112,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem,
       >
         <div className={`p-4 border-b flex justify-between items-center ${isDark ? 'border-gray-800 bg-gray-800' : 'border-gray-100 bg-gray-50'}`}>
           <div>
-            <h3 className={`font-bold text-sm uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Unscheduled</h3>
+            <h3 className={`font-bold text-sm uppercase tracking-wide ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{t('unscheduled')}</h3>
             <p className="text-[10px] text-gray-400">{unscheduled.length} items</p>
           </div>
         </div>
@@ -141,7 +143,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem,
             )}
         </div>
         <div className={`p-3 border-t text-[10px] text-center text-gray-400 ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
-            Drag items here to remove time.
+            {t('drag_to_remove')}
         </div>
       </div>
 
@@ -154,7 +156,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem,
           <div className={`h-14 border-b flex items-center justify-between px-6 shrink-0 shadow-sm z-20 ${isDark ? 'bg-gray-900/90 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
               <div className="flex items-center gap-2">
                   <Calendar className="text-indigo-600" size={18} />
-                  <span className="font-bold">Timeline</span>
+                  <span className="font-bold">{t('timeline_header')}</span>
               </div>
               
               <div className={`flex p-1 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
@@ -162,13 +164,13 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem,
                     onClick={() => setSortMode('chronological')}
                     className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${sortMode === 'chronological' ? (isDark ? 'bg-gray-700 text-indigo-300' : 'bg-white text-indigo-700 shadow-sm') : 'text-gray-500 hover:text-gray-400'}`}
                   >
-                      Chronological
+                      {t('chronological')}
                   </button>
                   <button 
                     onClick={() => setSortMode('narrative')}
                     className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${sortMode === 'narrative' ? (isDark ? 'bg-gray-700 text-indigo-300' : 'bg-white text-indigo-700 shadow-sm') : 'text-gray-500 hover:text-gray-400'}`}
                   >
-                      Binder Order
+                      {t('narrative_order')}
                   </button>
               </div>
           </div>
@@ -218,7 +220,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ items, onUpdateItem,
                                           </div>
                                           {isConflict && (
                                               <span className="text-[10px] text-red-500 flex items-center gap-1 mt-1 font-bold">
-                                                  <AlertCircle size={10} /> Conflict
+                                                  <AlertCircle size={10} /> {t('conflict')}
                                               </span>
                                           )}
                                       </div>

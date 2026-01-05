@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { BinderItem, CharacterSceneData, WorkspaceTheme } from '../types';
 import { Users, Plus, Trash2, User, Target, Heart, ShieldAlert, ArrowRightCircle, Eye, Brain, CheckCircle, AlertTriangle, AlertCircle, RefreshCw, TrendingUp, ArrowRight, Sparkles, Loader2, Activity, PlayCircle, Lightbulb, Zap, Link as LinkIcon, FileText } from 'lucide-react';
 import { checkPovConsistency, analyzeCharacterArc, analyzeCharacterMotion, generateActionSuggestions, analyzeCharacterConflict } from '../services/geminiService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Helper to flatten docs for search
 const flattenDocs = (items: BinderItem[]) => {
@@ -27,6 +28,7 @@ interface CharacterElementsViewProps {
 }
 
 export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ item, onUpdateItem, binderItems = [], onNavigate, theme }) => {
+  const { t } = useLanguage();
   const [newCharName, setNewCharName] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzingCharId, setAnalyzingCharId] = useState<string | null>(null);
@@ -185,10 +187,10 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                 <div>
                     <h2 className={`text-2xl font-bold font-serif flex items-center gap-2 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>
                         <Users className="text-indigo-600" />
-                        Character Elements
+                        {t('char_header')}
                     </h2>
                     <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Map internal and external drivers for characters in <span className={`font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>"{item.title}"</span>.
+                        {t('char_desc')} <span className={`font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>"{item.title}"</span>.
                     </p>
                 </div>
             </div>
@@ -200,7 +202,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <h3 className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-indigo-300' : 'text-indigo-900'}`}>
-                                <Eye size={16} /> Point of View (POV)
+                                <Eye size={16} /> {t('pov')}
                             </h3>
                             <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 Current Scene Narrator: <span className={`font-bold ${isDark ? 'text-gray-200' : 'text-gray-800'}`}>{characters.find(c => c.id === povId)?.name}</span>
@@ -212,7 +214,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                             className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${isDark ? 'bg-gray-700 text-indigo-300 hover:bg-gray-600' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
                         >
                             {isAnalyzing ? <Loader2 size={12} className="animate-spin"/> : <Brain size={12} />}
-                            {isAnalyzing ? 'Analyzing...' : 'Check Consistency'}
+                            {isAnalyzing ? t('analyzing') : t('check_consistency')}
                         </button>
                     </div>
 
@@ -259,7 +261,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                 </div>
                 <input 
                     type="text" 
-                    placeholder="Add a character to this scene..." 
+                    placeholder={t('add_character')} 
                     className={`flex-1 border-none focus:ring-0 text-sm bg-transparent placeholder-gray-400 ${isDark ? 'text-gray-200' : 'text-gray-800'}`}
                     value={newCharName}
                     onChange={(e) => setNewCharName(e.target.value)}
@@ -270,7 +272,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                     disabled={!newCharName.trim()}
                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
-                    <Plus size={16} /> Add
+                    <Plus size={16} /> {t('add')}
                 </button>
             </div>
 
@@ -294,10 +296,10 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                         onChange={(e) => updateCharacter(char.id, 'role', e.target.value)}
                                         className={`text-xs font-medium uppercase tracking-wider border rounded px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500 ${isDark ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-white border-gray-200 text-gray-500'}`}
                                     >
-                                        <option value="Protagonist">Protagonist</option>
-                                        <option value="Antagonist">Antagonist</option>
-                                        <option value="Supporting">Supporting</option>
-                                        <option value="Minor">Minor</option>
+                                        <option value="Protagonist">{t('role_protagonist')}</option>
+                                        <option value="Antagonist">{t('role_antagonist')}</option>
+                                        <option value="Supporting">{t('role_supporting')}</option>
+                                        <option value="Minor">{t('role_minor')}</option>
                                     </select>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -359,7 +361,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className={`flex items-center gap-2 text-xs font-bold uppercase ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                                            <Target size={14} /> Goal
+                                            <Target size={14} /> {t('goal')}
                                         </label>
                                         <textarea 
                                             className={`w-full text-sm border rounded-lg min-h-[80px] p-2 focus:ring-blue-500 focus:border-blue-500 ${isDark ? 'bg-blue-900/10 border-blue-900/30 text-gray-200' : 'bg-blue-50/30 border-gray-200'}`}
@@ -370,7 +372,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                     </div>
                                     <div className="space-y-2">
                                         <label className={`flex items-center gap-2 text-xs font-bold uppercase ${isDark ? 'text-purple-400' : 'text-purple-600'}`}>
-                                            <Heart size={14} /> Motivation
+                                            <Heart size={14} /> {t('motivation')}
                                         </label>
                                         <textarea 
                                             className={`w-full text-sm border rounded-lg min-h-[80px] p-2 focus:ring-purple-500 focus:border-purple-500 ${isDark ? 'bg-purple-900/10 border-purple-900/30 text-gray-200' : 'bg-purple-50/30 border-gray-200'}`}
@@ -386,7 +388,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center">
                                             <label className={`flex items-center gap-2 text-xs font-bold uppercase ${isDark ? 'text-red-400' : 'text-red-600'}`}>
-                                                <ShieldAlert size={14} /> Conflict
+                                                <ShieldAlert size={14} /> {t('conflict_field')}
                                             </label>
                                             <button 
                                                 onClick={() => handleDetectConflict(char.id, char.name)}
@@ -406,7 +408,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                     </div>
                                     <div className="space-y-2">
                                         <label className={`flex items-center gap-2 text-xs font-bold uppercase ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
-                                            <ArrowRightCircle size={14} /> Climax
+                                            <ArrowRightCircle size={14} /> {t('climax')}
                                         </label>
                                         <textarea 
                                             className={`w-full text-sm border rounded-lg min-h-[80px] p-2 focus:ring-orange-500 focus:border-orange-500 ${isDark ? 'bg-orange-900/10 border-orange-900/30 text-gray-200' : 'bg-orange-50/30 border-gray-200'}`}
@@ -421,7 +423,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                 <div className={`border rounded-xl p-4 ${isDark ? 'bg-gray-700/30 border-gray-700' : 'bg-gray-50/50 border-gray-200'}`}>
                                     <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                                            <TrendingUp size={14} /> Emotional Arc
+                                            <TrendingUp size={14} /> {t('emotional_arc')}
                                         </h4>
                                         <button 
                                             onClick={() => handleAutoDetectArc(char.id, char.name)}
@@ -434,7 +436,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">Start State</label>
+                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">{t('start_state')}</label>
                                             <input 
                                                 type="text" 
                                                 className={`w-full text-sm border rounded-md py-1.5 px-2 ${isDark ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-white border-gray-300'}`}
@@ -447,7 +449,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                             <ArrowRight size={16} />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">End State</label>
+                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">{t('end_state')}</label>
                                             <input 
                                                 type="text" 
                                                 className={`w-full text-sm border rounded-md py-1.5 px-2 ${isDark ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-white border-gray-300'}`}
@@ -457,7 +459,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                             />
                                         </div>
                                         <div className="md:col-span-3 mt-2">
-                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">Outcome / Change</label>
+                                            <label className="text-[10px] uppercase text-gray-400 font-bold mb-1 block">{t('outcome')}</label>
                                             <textarea 
                                                 className={`w-full text-sm border rounded-md py-1.5 px-2 h-16 resize-none ${isDark ? 'bg-gray-700 border-gray-600 text-gray-200' : 'bg-white border-gray-300'}`}
                                                 placeholder="How did the events of this scene change them?"
@@ -472,7 +474,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                 <div className={`border rounded-xl p-4 relative overflow-hidden ${isDark ? 'bg-gray-700/50 border-gray-700' : 'bg-white border-gray-200'}`}>
                                     <div className="flex justify-between items-start mb-4 relative z-10">
                                         <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                                            <Activity size={14} /> Physical Activity
+                                            <Activity size={14} /> {t('physical_activity')}
                                         </h4>
                                         <div className="flex gap-2">
                                             <button 
@@ -481,7 +483,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                                 className={`text-xs px-2 py-1 rounded flex items-center gap-1 transition-colors ${isDark ? 'text-indigo-400 hover:bg-indigo-900/30' : 'text-indigo-600 hover:bg-indigo-50'}`}
                                             >
                                                 {generatingIdeasId === char.id ? <Loader2 size={12} className="animate-spin"/> : <Lightbulb size={12} />}
-                                                Ideas
+                                                {t('ideas')}
                                             </button>
                                             <button 
                                                 onClick={() => handleAnalyzeMotion(char.id, char.name)}
@@ -489,7 +491,7 @@ export const CharacterElementsView: React.FC<CharacterElementsViewProps> = ({ it
                                                 className={`text-xs px-3 py-1 rounded transition-colors flex items-center gap-2 ${isDark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                                             >
                                                 {analyzingMotionId === char.id ? <Loader2 size={12} className="animate-spin"/> : <PlayCircle size={12} />}
-                                                Analyze
+                                                {t('analyze')}
                                             </button>
                                         </div>
                                     </div>

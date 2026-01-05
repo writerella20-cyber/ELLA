@@ -2,6 +2,8 @@
 import React, { useState, useRef } from 'react';
 import { Project } from '../types';
 import { Book, Plus, Search, Heart, Clock, FileText, Trash2, Cloud, CheckCircle, Wifi, Laptop, Settings, X, Palette, Type, Save, Layout, Upload } from 'lucide-react';
+import { Logo } from './Logo';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface BookshelfProps {
   projects: Project[];
@@ -18,6 +20,7 @@ const ProjectEditModal: React.FC<{
     onClose: () => void; 
     onSave: (updates: Partial<Project>) => void; 
 }> = ({ project, onClose, onSave }) => {
+    const { t } = useLanguage();
     const [title, setTitle] = useState(project.title);
     const [author, setAuthor] = useState(project.author);
     const [synopsis, setSynopsis] = useState(project.synopsis);
@@ -68,7 +71,7 @@ const ProjectEditModal: React.FC<{
                             </div>
                             <div className="mt-auto">
                                 <div className="text-[10px] opacity-60 uppercase tracking-widest">
-                                    Nebula Docs
+                                    NowElla
                                 </div>
                             </div>
                         </div>
@@ -80,7 +83,7 @@ const ProjectEditModal: React.FC<{
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <Settings size={18} className="text-indigo-600" />
-                            Book Settings
+                            {t('bookSettings')}
                         </h3>
                         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
                             <X size={20} />
@@ -90,7 +93,7 @@ const ProjectEditModal: React.FC<{
                     <div className="p-6 overflow-y-auto space-y-6 flex-1">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-gray-500">Title</label>
+                                <label className="text-xs font-bold uppercase text-gray-500">{t('title')}</label>
                                 <input 
                                     type="text" 
                                     value={title} 
@@ -99,7 +102,7 @@ const ProjectEditModal: React.FC<{
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-gray-500">Author</label>
+                                <label className="text-xs font-bold uppercase text-gray-500">{t('author')}</label>
                                 <input 
                                     type="text" 
                                     value={author} 
@@ -110,7 +113,7 @@ const ProjectEditModal: React.FC<{
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-xs font-bold uppercase text-gray-500">Synopsis</label>
+                            <label className="text-xs font-bold uppercase text-gray-500">{t('synopsis')}</label>
                             <textarea 
                                 value={synopsis} 
                                 onChange={(e) => setSynopsis(e.target.value)}
@@ -122,7 +125,7 @@ const ProjectEditModal: React.FC<{
 
                         <div className="space-y-2">
                             <label className="text-xs font-bold uppercase text-gray-500 flex items-center gap-2">
-                                <Palette size={14} /> Cover Style
+                                <Palette size={14} /> {t('coverStyle')}
                             </label>
                             <div className="grid grid-cols-4 gap-2">
                                 {presets.map((preset, idx) => (
@@ -139,7 +142,7 @@ const ProjectEditModal: React.FC<{
 
                         <div className="space-y-2">
                             <label className="text-xs font-bold uppercase text-gray-500 flex items-center gap-2">
-                                <Type size={14} /> Typography
+                                <Type size={14} /> {t('typography')}
                             </label>
                             <div className="flex gap-2">
                                 {fonts.map((f) => (
@@ -158,10 +161,10 @@ const ProjectEditModal: React.FC<{
 
                     <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                         <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors">
-                            Cancel
+                            {t('cancel')}
                         </button>
                         <button onClick={handleSave} className="px-6 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all flex items-center gap-2">
-                            <Save size={16} /> Save Changes
+                            <Save size={16} /> {t('saveChanges')}
                         </button>
                     </div>
                 </div>
@@ -179,6 +182,7 @@ export const Bookshelf: React.FC<BookshelfProps> = ({
   onUpdateProject,
   onImportProject
 }) => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'recent' | 'favorites'>('all');
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('synced');
@@ -240,119 +244,124 @@ export const Bookshelf: React.FC<BookshelfProps> = ({
           />
       )}
 
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between sticky top-0 z-20 shadow-sm gap-4 shrink-0">
+      {/* Header - VELVET MAGENTA TEXTURE */}
+      <div 
+        className="px-4 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between sticky top-0 z-20 shadow-lg gap-4 shrink-0 relative overflow-hidden"
+        style={{
+            background: 'radial-gradient(circle at 50% 0%, #a21caf 0%, #86198f 40%, #4a044e 100%)',
+            boxShadow: '0 4px 20px -2px rgba(0,0,0,0.5)'
+        }}
+      >
+        {/* Noise overlay */}
+        <div 
+            className="absolute inset-0 pointer-events-none opacity-20"
+            style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E")`
+            }}
+        ></div>
         
         {/* Logo Area */}
-        <div className="flex items-center justify-between w-full md:w-auto">
-            <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-2 rounded-lg text-white">
-                <Book size={24} />
-            </div>
-            <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight leading-none">Nebula</h1>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Universal Library</p>
-            </div>
+        <div className="flex items-center justify-between w-full md:w-auto z-10">
+            <div className="flex items-center gap-1 select-none pr-6">
+                <Logo size="lg" variant="light" />
             </div>
 
             {/* Mobile Actions */}
             <div className="flex items-center gap-2 md:hidden">
-                <button onClick={handleSync} className="p-2 text-gray-500">
-                    {syncStatus === 'syncing' ? <Cloud size={20} className="animate-pulse text-indigo-500"/> : <Cloud size={20}/>}
+                <button onClick={handleSync} className="p-2 text-fuchsia-200">
+                    {syncStatus === 'syncing' ? <Cloud size={20} className="animate-pulse text-white"/> : <Cloud size={20}/>}
                 </button>
             </div>
         </div>
 
         {/* Search */}
-        <div className="flex-1 max-w-xl w-full md:mx-8 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <div className="flex-1 max-w-xl w-full md:mx-8 relative z-10">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fuchsia-200/60" size={18} />
           <input 
             type="text" 
-            placeholder="Search your library..." 
+            placeholder={t('searchPlaceholder')} 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-100 border-none rounded-full py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+            className="w-full bg-white/10 border-none rounded-full py-2.5 pl-10 pr-4 text-sm text-white placeholder-fuchsia-200/50 focus:ring-2 focus:ring-fuchsia-400 focus:bg-white/20 transition-all shadow-inner"
           />
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+        <div className="flex items-center gap-3 w-full md:w-auto justify-end z-10">
             {/* Sync Status (Desktop) */}
-            <div className="hidden md:flex items-center gap-2 mr-4 border-r border-gray-200 pr-4">
+            <div className="hidden md:flex items-center gap-2 mr-4 border-r border-fuchsia-800/50 pr-4">
                 <div className="text-right">
-                    <p className="text-xs font-bold text-gray-700">Generic User</p>
-                    <p className="text-[10px] text-gray-400 flex items-center justify-end gap-1">
-                        {syncStatus === 'syncing' ? 'Syncing...' : 'All changes saved'}
+                    <p className="text-xs font-bold text-fuchsia-100">Writer</p>
+                    <p className="text-[10px] text-fuchsia-300 flex items-center justify-end gap-1">
+                        {syncStatus === 'syncing' ? t('saving') : t('saved')}
                     </p>
                 </div>
                 <button 
                     onClick={handleSync}
-                    className={`p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors relative group`}
+                    className={`p-2 rounded-full bg-fuchsia-900/50 hover:bg-fuchsia-800 transition-colors relative group border border-fuchsia-700/50`}
                     title="Cloud Status"
                 >
-                    {syncStatus === 'synced' && <CheckCircle size={18} className="text-green-500" />}
-                    {syncStatus === 'syncing' && <Cloud size={18} className="text-indigo-500 animate-bounce" />}
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl rounded-lg p-3 hidden group-hover:block border border-gray-100 text-xs z-50">
-                        <p className="font-bold mb-1 flex items-center gap-2"><Wifi size={12}/> Universal Access</p>
-                        <p className="text-gray-500">Your projects are accessible on any device with this browser.</p>
-                    </div>
+                    {syncStatus === 'synced' && <CheckCircle size={18} className="text-green-400" />}
+                    {syncStatus === 'syncing' && <Cloud size={18} className="text-white animate-bounce" />}
                 </button>
             </div>
 
             {onImportProject && (
                 <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:text-indigo-600 transition-all text-sm"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-full font-medium text-fuchsia-100 bg-fuchsia-900/50 border border-fuchsia-700/50 hover:bg-fuchsia-800 hover:text-white transition-all text-sm backdrop-blur-sm"
                 >
                     <Upload size={16} />
-                    <span className="hidden sm:inline">Import</span>
+                    <span className="hidden sm:inline">{t('import')}</span>
                 </button>
             )}
 
             <button 
                 onClick={onCreateProject}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-full font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5 whitespace-nowrap"
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white px-5 py-2.5 rounded-full font-medium shadow-lg shadow-amber-900/20 hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-0.5 whitespace-nowrap border border-amber-400/20"
             >
                 <Plus size={18} />
-                <span>New Book</span>
+                <span className="font-serif">{t('newBook')}</span>
             </button>
         </div>
       </div>
 
       {/* Main Content (Scrollable) */}
-      <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+      <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100">
         
         {/* Filters */}
         <div className="flex items-center gap-6 mb-8 text-sm font-medium border-b border-gray-200 pb-1 overflow-x-auto no-scrollbar">
           <button 
             onClick={() => setFilter('all')}
-            className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'all' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+            className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'all' ? 'border-fuchsia-700 text-fuchsia-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
           >
-            All Books
+            {t('allBooks')}
           </button>
           <button 
             onClick={() => setFilter('favorites')}
-            className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'favorites' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+            className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'favorites' ? 'border-fuchsia-700 text-fuchsia-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
           >
-            Favorites
+            {t('favorites')}
           </button>
           <button 
              onClick={() => setFilter('recent')}
-             className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'recent' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+             className={`pb-3 px-2 border-b-2 transition-colors whitespace-nowrap ${filter === 'recent' ? 'border-fuchsia-700 text-fuchsia-800' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
           >
-            Recent
+            {t('recent')}
           </button>
         </div>
 
         {/* Device Promo Banner */}
-        <div className="mb-8 bg-gradient-to-r from-gray-900 to-indigo-900 rounded-xl p-6 text-white flex items-center justify-between shadow-lg relative overflow-hidden group">
+        <div className="mb-8 rounded-xl p-6 text-white flex items-center justify-between shadow-xl relative overflow-hidden group border border-fuchsia-900/20"
+             style={{ background: 'linear-gradient(135deg, #701a75 0%, #4a044e 100%)' }}
+        >
             <div className="relative z-10">
-                <h2 className="font-bold text-lg mb-1 flex items-center gap-2"><Laptop size={20} /> Write Everywhere</h2>
-                <p className="text-indigo-200 text-sm max-w-lg">
-                    Nebula is optimized for Chromebooks, Tablets, and Desktop. Your creative studio travels with you.
+                <h2 className="font-bold text-lg mb-1 flex items-center gap-2 font-serif tracking-wide"><Laptop size={20} /> Write Everywhere</h2>
+                <p className="text-fuchsia-200 text-sm max-w-lg">
+                    NowElla is optimized for Chromebooks, Tablets, and Desktop. Your creative studio travels with you.
                 </p>
             </div>
-            <Cloud className="absolute -right-6 -bottom-6 text-white opacity-5 w-48 h-48 group-hover:scale-110 transition-transform duration-700" />
+            <Cloud className="absolute -right-6 -bottom-6 text-white opacity-10 w-48 h-48 group-hover:scale-110 transition-transform duration-700" />
         </div>
 
         {/* Grid */}
@@ -361,12 +370,12 @@ export const Bookshelf: React.FC<BookshelfProps> = ({
           {/* Create New Card (Visual) */}
           <button 
             onClick={onCreateProject}
-            className="group relative aspect-[3/4] rounded-r-xl rounded-l-sm bg-gray-200 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-100 hover:border-indigo-400 hover:text-indigo-600 transition-all"
+            className="group relative aspect-[3/4] rounded-r-xl rounded-l-sm bg-white border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:bg-fuchsia-50 hover:border-fuchsia-300 hover:text-fuchsia-700 transition-all shadow-sm hover:shadow-md"
           >
-            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-full bg-gray-50 group-hover:bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform border border-gray-100">
                 <Plus size={32} />
             </div>
-            <span className="font-semibold">Start New Book</span>
+            <span className="font-semibold font-serif">{t('startNewBook')}</span>
           </button>
 
           {filteredProjects.map((project) => (
@@ -403,7 +412,7 @@ export const Bookshelf: React.FC<BookshelfProps> = ({
                            </div>
                            <div className="flex items-center gap-2 text-[10px] opacity-60 uppercase tracking-widest">
                                 <FileText size={10} />
-                                <span>{project.wordCount.toLocaleString()} Words</span>
+                                <span>{project.wordCount.toLocaleString()} {t('words')}</span>
                            </div>
                         </div>
                     </div>

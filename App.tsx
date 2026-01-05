@@ -16,16 +16,18 @@ import { StickyNotesBoard } from './components/StickyNotesBoard';
 import { ThemeGalleryModal } from './components/ThemeGalleryModal';
 import { applyDesignToBinder } from './services/bookFormatService';
 import { exportToFDX } from './services/exporter';
-import { autoPopulateSceneData } from './services/geminiService';
+import { autoPopulateSceneData, setUserApiKey } from './services/geminiService';
+import { Logo } from './components/Logo';
 import { 
     Cloud, Loader2, PanelLeft, LayoutGrid, PenTool, 
     List, ScrollText, Columns2, Rows2, Square, X, History, Calendar, MessageSquare, BookOpen, Eye, 
     ChevronDown, Library, ArrowLeft, GitMerge, Users, Compass, Globe, Table2, Activity, Network, Database,
-    Bookmark, StickyNote as StickyIcon, Palette, Settings, Layout, RefreshCw, Sparkles, Book, Share2, Download, Info
+    Bookmark, StickyNote as StickyIcon, Palette, Settings, Layout, RefreshCw, Sparkles, Book, Share2, Download, Info, Languages, ExternalLink, Key
 } from 'lucide-react';
 import { BinderItem, DocumentVersion, Project, BookDesign, PlotThread, StickyNote, WorkspaceTheme } from './types';
 import { BOOK_DESIGNS } from './data/bookDesigns';
 import { WORKSPACE_THEMES } from './data/themes';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
 const BINDER_STORAGE_PREFIX = 'nebula_content_'; // + projectId
 const METADATA_STORAGE_KEY = 'nebula_projects_meta';
@@ -34,32 +36,6 @@ const METADATA_STORAGE_KEY = 'nebula_projects_meta';
 const LEGACY_BINDER_KEY = 'nebula_binder_data';
 const LEGACY_THREADS_KEY = 'nebula_plot_threads';
 const LEGACY_NOTES_KEY = 'nebula_root_notes';
-
-// --- View Categories Configuration ---
-const VIEW_CATEGORIES = {
-  Writing: [
-    { mode: 'editor', label: 'Editor', icon: PenTool },
-    { mode: 'scrivenings', label: 'Scrivenings', icon: ScrollText },
-    { mode: 'dialogue', label: 'Dialogue Audit', icon: MessageSquare },
-    { mode: 'style', label: 'Style Focus', icon: BookOpen },
-  ],
-  Planning: [
-    { mode: 'corkboard', label: 'Corkboard', icon: LayoutGrid },
-    { mode: 'timeline', label: 'Timeline', icon: Calendar },
-    { mode: 'plotgrid', label: 'Plot Grid', icon: GitMerge },
-    { mode: 'graph', label: 'Network Graph', icon: Network },
-  ],
-  World: [
-    { mode: 'character-elements', label: 'Characters', icon: Users },
-    { mode: 'story-mechanics', label: 'Story Arc', icon: Compass },
-    { mode: 'setting-elements', label: 'Settings', icon: Globe },
-    { mode: 'database', label: 'Database', icon: Database },
-  ],
-  Analysis: [
-    { mode: 'insight-board', label: 'Insight Board', icon: Table2 },
-    { mode: 'reports', label: 'Full Reports', icon: Activity },
-  ]
-};
 
 // --- Helper Functions ---
 const findItemInTree = (items: BinderItem[], id: string): BinderItem | null => {
@@ -156,9 +132,12 @@ const DEFAULT_CONTENT: ProjectContent = {
     rootNotes: []
 };
 
-const App: React.FC = () => {
-  // App View State
-  const [showBookshelf, setShowBookshelf] = useState(false); // Start in workspace if data exists, handled in useEffect
+// Internal component to use hooks
+const AppContent: React.FC = () => {
+  const { t, language, setLanguage } = useLanguage();
+  
+  // App View State - Start on Bookshelf by default
+  const [showBookshelf, setShowBookshelf] = useState(true);
   
   // Projects Metadata
   const [projects, setProjects] = useState<Project[]>([]);
@@ -184,13 +163,14 @@ const App: React.FC = () => {
   const [isThemeGalleryOpen, setIsThemeGalleryOpen] = useState(false);
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
   
   const [magicMode, setMagicMode] = useState<'chat' | 'generate' | 'edit'>('chat');
   const [refineSelection, setRefineSelection] = useState('');
   const [zoomLevel, setZoomLevel] = useState(1);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const [showInlineNotes, setShowInlineNotes] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false); // New state for Smart Sync
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const isLoadedRef = useRef(false);
   const primaryEditorRef = useRef<EditorRef>(null);
@@ -213,8 +193,37 @@ const App: React.FC = () => {
   const activeItem = activeDocId ? findItemInTree(binderItems, activeDocId) : null;
   const activeDocTitle = activeItem ? activeItem.title : (activeProject?.title || 'Untitled');
 
+  const VIEW_CATEGORIES = {
+    Writing: [
+      { mode: 'editor', label: t('editor'), icon: PenTool },
+      { mode: 'scrivenings', label: t('scrivenings'), icon: ScrollText },
+      { mode: 'dialogue', label: 'Dialogue', icon: MessageSquare },
+      { mode: 'style', label: 'Style', icon: BookOpen },
+    ],
+    Planning: [
+      { mode: 'corkboard', label: t('corkboard'), icon: LayoutGrid },
+      { mode: 'timeline', label: t('timeline'), icon: Calendar },
+      { mode: 'plotgrid', label: 'Plot Grid', icon: GitMerge },
+      { mode: 'graph', label: 'Network Graph', icon: Network },
+    ],
+    World: [
+      { mode: 'character-elements', label: t('characters'), icon: Users },
+      { mode: 'story-mechanics', label: 'Story Arc', icon: Compass },
+      { mode: 'setting-elements', label: t('locations'), icon: Globe },
+      { mode: 'database', label: 'Database', icon: Database },
+    ],
+    Analysis: [
+      { mode: 'insight-board', label: 'Insight Board', icon: Table2 },
+      { mode: 'reports', label: t('reports'), icon: Activity },
+    ]
+  };
+
   // -- Initialization --
   useEffect(() => {
+      // Load saved API key
+      const savedKey = localStorage.getItem('nebula_api_key');
+      if (savedKey) setApiKeyInput(savedKey);
+
       // 1. Load Projects Metadata
       const metaData = localStorage.getItem(METADATA_STORAGE_KEY);
       let loadedProjects: Project[] = [];
@@ -276,7 +285,7 @@ const App: React.FC = () => {
 
       setProjectContents(initialContents);
 
-      // Setup initial view
+      // Setup initial view (but don't force showBookshelf=false)
       const startProj = loadedProjects[0].id;
       const firstDoc = findFirstDocument(initialContents[startProj]?.binderItems || []);
       
@@ -288,7 +297,7 @@ const App: React.FC = () => {
 
   // -- Update Document Title --
   useEffect(() => {
-      document.title = activeDocTitle ? `${activeDocTitle} | Nebula Docs` : 'Nebula Docs';
+      document.title = activeDocTitle ? `${activeDocTitle} | NowElla` : 'NowElla';
   }, [activeDocTitle]);
 
   // -- Persistence --
@@ -303,7 +312,7 @@ const App: React.FC = () => {
               localStorage.setItem(BINDER_STORAGE_PREFIX + pid, JSON.stringify(content));
           });
 
-          // Also update legacy keys for 'p1' for safety/backward compatibility for now
+          // Also update legacy keys for 'p1' for safety/backward compatibility
           if (projectContents['p1']) {
               localStorage.setItem(LEGACY_BINDER_KEY, JSON.stringify(projectContents['p1'].binderItems));
               localStorage.setItem(LEGACY_THREADS_KEY, JSON.stringify(projectContents['p1'].plotThreads));
@@ -332,6 +341,11 @@ const App: React.FC = () => {
   }, []);
 
   // --- Handlers (Context Aware) ---
+
+  const handleSaveApiKey = () => {
+      setUserApiKey(apiKeyInput);
+      alert(t('keySaved'));
+  };
 
   const updateProjectContent = (pid: string, updates: Partial<ProjectContent>) => {
       setSaveStatus('saving');
@@ -409,7 +423,7 @@ const App: React.FC = () => {
       }
 
       // Determine first doc
-      const content = projectContents[project.id] || DEFAULT_CONTENT; // Fallback
+      const content = projectContents[project.id] || DEFAULT_CONTENT;
       const firstDoc = findFirstDocument(content.binderItems);
 
       // Update the FOCUSED pane
@@ -456,7 +470,6 @@ const App: React.FC = () => {
   const handleDeleteProject = (id: string) => {
       if(confirm("Are you sure? This will delete the project and all documents.")) {
           setProjects(prev => prev.filter(p => p.id !== id));
-          // Logic to switch view if active project deleted omitted for brevity
       }
   };
 
@@ -499,8 +512,6 @@ const App: React.FC = () => {
 
   // --- Specific Item Handlers (Using Active Context) ---
   const handleSelectDoc = (id: string) => {
-      // Find which project this doc belongs to? 
-      // Assumption: The user selects from the sidebar, which is bound to activeProjectId.
       const pid = activeProjectId; 
       const newItem = findItemInTree(projectContents[pid]?.binderItems || [], id);
       if (!newItem) return;
@@ -517,7 +528,7 @@ const App: React.FC = () => {
       else setSecondaryView(updateState);
   };
 
-  const handleAddItem = (type: 'folder' | 'document', parentId?: string) => {
+  const handleAddItem = useCallback((type: 'folder' | 'document', parentId?: string) => {
       const pid = activeProjectId;
       const currentItems = projectContents[pid]?.binderItems || [];
       
@@ -548,9 +559,9 @@ const App: React.FC = () => {
       // Auto-select
       if (focusedPane === 'primary') setPrimaryView(prev => ({ ...prev, docId: newItem.id, viewMode: type === 'document' ? 'editor' : 'corkboard' }));
       else setSecondaryView(prev => ({ ...prev, docId: newItem.id, viewMode: type === 'document' ? 'editor' : 'corkboard' }));
-  };
+  }, [activeProjectId, projectContents, activeDocId, focusedPane]);
 
-  const handleToggleFolder = (id: string) => {
+  const handleToggleFolder = useCallback((id: string) => {
       const pid = activeProjectId;
       const currentItems = projectContents[pid]?.binderItems || [];
       const item = findItemInTree(currentItems, id);
@@ -558,9 +569,9 @@ const App: React.FC = () => {
           const newItems = updateItemInTree(currentItems, id, { isOpen: !item.isOpen });
           updateProjectContent(pid, { binderItems: newItems });
       }
-  };
+  }, [activeProjectId, projectContents]);
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = useCallback((id: string) => {
       if (!confirm("Delete item?")) return;
       const pid = activeProjectId;
       const newItems = deleteItemInTree(projectContents[pid]?.binderItems || [], id);
@@ -570,15 +581,15 @@ const App: React.FC = () => {
           if (focusedPane === 'primary') setPrimaryView(prev => ({ ...prev, docId: null, viewMode: 'corkboard' }));
           else setSecondaryView(prev => ({ ...prev, docId: null, viewMode: 'corkboard' }));
       }
-  };
+  }, [activeProjectId, projectContents, activeDocId, focusedPane]);
 
-  const handleRenameItem = (id: string, newName: string) => {
+  const handleRenameItem = useCallback((id: string, newName: string) => {
       const pid = activeProjectId;
       const newItems = updateItemInTree(projectContents[pid]?.binderItems || [], id, { title: newName });
       updateProjectContent(pid, { binderItems: newItems });
-  };
+  }, [activeProjectId, projectContents]);
 
-  const handleToggleBookmark = (targetId?: string) => {
+  const handleToggleBookmark = useCallback((targetId?: string) => {
       const idToToggle = targetId || activeDocId;
       if (!idToToggle) return;
       
@@ -590,7 +601,7 @@ const App: React.FC = () => {
           const newItems = updateItemInTree(items, idToToggle, { isBookmarked: !item.isBookmarked });
           updateProjectContent(pid, { binderItems: newItems });
       }
-  };
+  }, [activeDocId, activeProjectId, projectContents]);
 
   // --- Plot & Note Handlers ---
   const handleAddPlotThread = (name: string, color: string) => {
@@ -695,8 +706,6 @@ const App: React.FC = () => {
   // --- Split Layout ---
   const handleSplitLayout = (mode: SplitMode) => {
       if (mode !== 'single' && splitMode === 'single') {
-          // Initialize secondary view with a copy of primary, or keep separate?
-          // Default: Same project, same doc to start.
           setSecondaryView({ ...primaryView }); 
           setFocusedPane('secondary');
       }
@@ -743,7 +752,7 @@ const App: React.FC = () => {
       return tempDiv.textContent || tempDiv.innerText || '';
   }
 
-  // --- Apply Template (Complex) ---
+  // --- Apply Template ---
   const handleApplyTemplate = (t: Template) => {
       const pid = activeProjectId;
       const currentItems = projectContents[pid]?.binderItems || [];
@@ -799,7 +808,7 @@ const App: React.FC = () => {
           const found = VIEW_CATEGORIES[cat].find(v => v.mode === mode);
           if (found) return found;
       }
-      return { label: 'Editor', icon: PenTool }; // Default
+      return { label: t('editor'), icon: PenTool }; // Default
   };
 
   const currentViewConfig = getCurrentViewLabel();
@@ -870,13 +879,19 @@ const App: React.FC = () => {
       {/* Header */}
       <div className="h-14 bg-white border-b border-gray-300 flex items-center px-4 justify-between shrink-0 z-50 relative shadow-sm">
         <div className="flex items-center gap-3 min-w-0">
+          <div className="cursor-pointer mr-2" onClick={() => setShowBookshelf(true)}>
+            <Logo size="sm" variant="color" />
+          </div>
+
+          <div className="h-6 w-px bg-gray-200 hidden sm:block mx-1"></div>
+
           <button 
             onClick={() => setShowBookshelf(true)} 
-            className="flex items-center gap-2 mr-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-700 hover:text-indigo-600 transition-colors font-medium text-sm" 
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-700 hover:text-indigo-600 transition-colors font-medium text-sm" 
             title="Return to Library"
           >
              <Library size={18} />
-             <span className="hidden sm:inline">Library</span>
+             <span className="hidden sm:inline">{t('library')}</span>
           </button>
 
           <button onClick={() => setIsBinderOpen(!isBinderOpen)} className={`p-2 rounded-md transition-colors ${isBinderOpen ? 'bg-indigo-50 text-indigo-600' : 'text-gray-500 hover:bg-gray-100'}`}>
@@ -932,7 +947,7 @@ const App: React.FC = () => {
               />
               <div className="flex items-center gap-1.5 text-[10px] text-gray-400 select-none">
                  {saveStatus === 'saving' ? <Loader2 size={10} className="animate-spin" /> : <Cloud size={10} />}
-                 <span className="hidden lg:inline">{saveStatus === 'saved' ? 'Saved' : 'Saving...'}</span>
+                 <span className="hidden lg:inline">{saveStatus === 'saved' ? t('saved') : t('saving')}</span>
               </div>
               
               {activeDocId && (
@@ -964,11 +979,11 @@ const App: React.FC = () => {
                 title="Auto-fill Characters, Settings, and Timeline from text"
              >
                 {isSyncing ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                {isSyncing ? 'Syncing...' : 'Smart Sync'}
+                {isSyncing ? t('saving') : t('smartSync')}
              </button>
 
           <button onClick={() => { setMagicMode('chat'); setIsMagicOpen(!isMagicOpen); setIsHistoryOpen(false); setIsStickyOpen(false); }} className={`hidden sm:flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg shadow-sm border ${isMagicOpen ? 'bg-purple-100 text-purple-700 border-purple-300' : 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50'}`}>
-            <Sparkles size={14} /> AI Magic
+            <Sparkles size={14} /> {t('aiMagic')}
           </button>
           
           <div className="w-px h-6 bg-gray-200 hidden sm:block"></div>
@@ -985,6 +1000,51 @@ const App: React.FC = () => {
 
               {isSettingsMenuOpen && (
                   <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-2 z-50">
+                      {/* Language Toggles */}
+                      <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+                          <h4 className="text-xs font-bold text-gray-400 uppercase flex items-center gap-1">
+                              <Languages size={12} /> Language
+                          </h4>
+                          <div className="flex gap-1">
+                              <button 
+                                onClick={() => setLanguage('en')}
+                                className={`text-[10px] px-2 py-0.5 rounded border ${language === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                              >
+                                  EN
+                              </button>
+                              <button 
+                                onClick={() => setLanguage('tr')}
+                                className={`text-[10px] px-2 py-0.5 rounded border ${language === 'tr' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-100 text-gray-600 border-gray-200'}`}
+                              >
+                                  TR
+                              </button>
+                          </div>
+                      </div>
+
+                      {/* API Key Input */}
+                      <div className="p-3 border-b border-gray-100 bg-gray-50">
+                          <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 flex items-center gap-1">
+                              <Key size={12} /> {t('aiConfig')}
+                          </h4>
+                          <div className="space-y-2">
+                              <div className="flex gap-1">
+                                  <input 
+                                      type="password" 
+                                      placeholder={t('apiKeyPlaceholder')}
+                                      className="flex-1 text-xs border rounded p-1.5 focus:border-indigo-500 outline-none"
+                                      value={apiKeyInput}
+                                      onChange={(e) => setApiKeyInput(e.target.value)}
+                                  />
+                                  <button onClick={handleSaveApiKey} className="bg-indigo-600 text-white text-xs px-2 rounded hover:bg-indigo-700">
+                                      {t('save')}
+                                  </button>
+                              </div>
+                              <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-[10px] text-indigo-600 hover:underline flex items-center gap-1 font-medium justify-center">
+                                  {t('getKeyLink')} <ExternalLink size={10} />
+                              </a>
+                          </div>
+                      </div>
+
                       <div className="p-3 border-b border-gray-100">
                           <h4 className="text-xs font-bold text-gray-400 uppercase mb-2">Layout</h4>
                           <div className="flex bg-gray-100 p-1 rounded-lg">
@@ -999,31 +1059,31 @@ const App: React.FC = () => {
                             onClick={() => { setIsThemeGalleryOpen(true); setIsSettingsMenuOpen(false); }}
                             className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                           >
-                              <Palette size={16} className="text-pink-500" /> Themes
+                              <Palette size={16} className="text-pink-500" /> {t('themes')}
                           </button>
                           <button 
                             onClick={() => { setIsStickyOpen(!isStickyOpen); setIsSettingsMenuOpen(false); }}
                             className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                           >
-                              <StickyIcon size={16} className="text-amber-500" /> Sticky Notes
+                              <StickyIcon size={16} className="text-amber-500" /> {t('stickyNotes')}
                           </button>
                           <button 
                             onClick={() => { setIsHistoryOpen(!isHistoryOpen); setIsSettingsMenuOpen(false); }}
                             className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                           >
-                              <History size={16} className="text-blue-500" /> Version History
+                              <History size={16} className="text-blue-500" /> {t('history')}
                           </button>
                           <button 
                             onClick={() => { setIsBookDesignerOpen(true); setIsSettingsMenuOpen(false); }}
                             className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                           >
-                              <Book size={16} className="text-indigo-500" /> Book Designer
+                              <Book size={16} className="text-indigo-500" /> {t('bookDesigner')}
                           </button>
                           <button 
                             onClick={handleBackupProject}
                             className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                           >
-                              <Download size={16} className="text-green-600" /> Backup Project (.json)
+                              <Download size={16} className="text-green-600" /> {t('backup')}
                           </button>
                       </div>
                       
@@ -1036,7 +1096,7 @@ const App: React.FC = () => {
                                 setIsSettingsMenuOpen(false); 
                             }}
                           >
-                              <Share2 size={12} /> Copy App Link
+                              <Share2 size={12} /> {t('copyLink')}
                           </button>
                       </div>
                   </div>
@@ -1172,6 +1232,14 @@ const App: React.FC = () => {
         />
       </div>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 

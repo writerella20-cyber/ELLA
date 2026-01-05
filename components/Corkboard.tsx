@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { FileText, Folder, GripVertical, Plus, X, Trash2 } from 'lucide-react';
 import { BinderItem, StickyNote, WorkspaceTheme } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface CorkboardProps {
   items: BinderItem[];
@@ -14,6 +15,7 @@ interface CorkboardProps {
 }
 
 export const Corkboard: React.FC<CorkboardProps> = ({ items, parentId, onReorder, onSelect, notes = [], onUpdateNotes, theme }) => {
+  const { t } = useLanguage();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -81,8 +83,6 @@ export const Corkboard: React.FC<CorkboardProps> = ({ items, parentId, onReorder
 
   const containerStyle = theme ? { background: theme.background } : {};
   const isDark = theme?.isDark;
-  const textColor = isDark ? 'text-gray-200' : 'text-gray-600';
-  const headingColor = isDark ? 'text-gray-100' : 'text-gray-800';
 
   const isEmpty = items.length === 0 && notes.length === 0;
 
@@ -94,15 +94,15 @@ export const Corkboard: React.FC<CorkboardProps> = ({ items, parentId, onReorder
         >
             <div className={`text-center mb-6 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                 <Folder size={48} className="mx-auto mb-4 opacity-30" />
-                <p className="text-lg font-serif italic">This board is empty.</p>
-                <p className="text-sm">Add documents or sticky notes to organize your thoughts.</p>
+                <p className="text-lg font-serif italic">{t('corkboard_empty')}</p>
+                <p className="text-sm">{t('corkboard_empty_desc')}</p>
             </div>
             {onUpdateNotes && (
                 <button 
                     onClick={handleAddNote}
                     className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-6 py-2 rounded-full font-bold shadow-md transition-transform hover:-translate-y-1"
                 >
-                    <Plus size={18} /> Add First Sticky Note
+                    <Plus size={18} /> {t('add_first_note')}
                 </button>
             )}
         </div>
@@ -122,7 +122,7 @@ export const Corkboard: React.FC<CorkboardProps> = ({ items, parentId, onReorder
                   onClick={handleAddNote}
                   className="flex items-center gap-1 bg-white/80 hover:bg-white text-gray-700 px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 text-sm font-medium transition-all"
               >
-                  <Plus size={16} className="text-yellow-600" /> New Note
+                  <Plus size={16} className="text-yellow-600" /> {t('new_note')}
               </button>
           )}
       </div>
